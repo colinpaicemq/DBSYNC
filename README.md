@@ -1,5 +1,5 @@
 # DBSYNC
-UpdatedRACF DBSYNC
+Updated RACF DBSYNC
 
 ## Updated 
 
