@@ -1,0 +1,53 @@
+/* rexx */
+trace e
+/*
+say "!!GENC05F0 entry "
+*/
+parse arg type,file,datarec
+parse var datarec 6 grsig_name,           /* parse the data           */
+  253 grsig_class_name,
+  262 grsig_sigrequired,
+  267 grsig_failload,
+  278 grsig_audit,
+  288 .
+  grsig_name        = strip(grsig_name      ,  "B")
+  grsig_class_name  = strip(grsig_class_name  ,"B")
+  grsig_sigrequired = strip(grsig_sigrequired, "B")
+  grsig_failload    = strip(grsig_failload,    "B")
+  grsig_audit       = strip(grsig_audit,       "B")
+  /*
+  say "grsig_name              "grsig_name
+  say "grsig_class_name        "grsig_class_name
+  say "grsig_sigrequired       "grsig_sigrequired
+  say "grsig_failload          "grsig_failload
+  say "grsig_audit             "grsig_audit
+*/
+if type = 'delete' then                 /* if delete                */
+   do
+      cmd.1  = " ralter  "grsig_class_name grsig_name  "NOSIGVER"
+      cmd.0 = 1
+      if file = 1 then
+      "execio * diskw sigvdel1 (    stem cmd."
+      else
+      "execio * diskw sigvdel2 (    stem cmd."
+   end;
+else if type = 'define' then                 /* if delete                */
+   do
+      cmd.1  = " ralter  "grsig_class_name grsig_name "SIGVER("
+      cmd.1  = cmd.1 "SIGREQUIRED("grsig_sigrequired")"
+      cmd.1  = cmd.1 " FAILLOAD("grsig_failload")"
+      cmd.1  = cmd.1 " SIGAUDIT("grsig_audit")"
+      cmd.1  = cmd.1 " )"
+      if file = 1 then
+      "execio * diskw sigvadd1 (    stem cmd."
+      else
+      "execio * diskw sigvadd2 (    stem cmd."
+   end;
+else
+do
+  say "GENC05F0  does not support type="type
+  return " "
+end
+if rc <> 0 then
+ say  "!! GENC05F0 execio "type file rc
+return " "

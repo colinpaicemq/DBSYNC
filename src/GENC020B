@@ -1,0 +1,40 @@
+/* rexx */
+trace e
+parse arg type,file,datarec
+/*
+say "genc020b " type file  datarec
+*/
+parse var datarec 6 usmpol_name,          /* parse the data           */
+  15  usmpol_policy_name,
+  34   .
+  usmpol_name= strip(usmpol_name,"b")
+  usmpol_policy_name=   strip(usmpol_policy_name,"b")
+/*
+say "!!genc020b entry "  grmfp_class_name  grmfp_name type file
+*/
+if type = 'delete' then                 /* if delete                */
+   do
+      cmd.1  = " ralter "usmpol_name" MFA(DELPOLICY("usmpol_policy_name"))"
+      cmd.0 = 1
+      if file = 1 then
+      "execio * diskw mfadel1 (    stem cmd. )"
+      else
+      "execio * diskw mfadel2 (    stem cmd. ) "
+   end;
+else if type = 'define' then                 /* if delete                */
+   do
+      cmd.1  = " ralter "usmpol_name" MFA(ADDPOLICY("usmpol_policy_name"))"
+      cmd.0 = 1
+      if file = 1 then
+      "execio * diskw mfaadd1 (    stem cmd.)"
+      else
+      "execio * diskw mfaadd2 (    stem cmd. )"
+   end;
+else
+do
+  say "!!genc020b  does not support type="type
+  return " "
+end
+if rc <> 0 then
+  "!! genc020b execio "type file rc
+return " "

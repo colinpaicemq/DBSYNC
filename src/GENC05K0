@@ -1,0 +1,79 @@
+/* rexx */
+/* idtdata */
+trace e
+parse arg type,file,datarec
+/*
+say "GENC05K0 " type file   datarec
+*/
+parse var datarec 6 gridtp_name,
+  253 gridtp_class_name,
+  262 gridtp_sig_token_name,
+  295 gridtp_sig_seq_num,
+  304 gridtp_sig_cat,
+  309 gridtp_sig_alg,
+  342 gridtp_timeout,
+  353 gridtp_anyappl,
+  356 .
+  gridtp_name                = strip(gridtp_name              ,"B")
+  gridtp_class_name          = strip(gridtp_class_name        ,"B")
+  gridtp_sig_token_name      = strip(gridtp_sig_token_name    ,"B")
+  gridtp_sig_seq_num         = strip(gridtp_sig_seq_num       ,"B")
+  gridtp_sig_cat             = strip(gridtp_sig_cat           ,"B")
+  gridtp_sig_alg             = strip(gridtp_sig_alg           ,"B")
+  gridtp_timeout             =       gridtp_timeout    +0
+  gridtp_anyappl             = strip(gridtp_anyappl           ,"B")
+  /*
+  say " gridtp_name                =   " gridtp_name"."
+  say " gridtp_class_name          =   " gridtp_class_name
+  say " gridtp_sig_token_name      =   " gridtp_sig_token_name
+  say " gridtp_sig_seq_num         =   " gridtp_sig_seq_num
+  say " gridtp_sig_cat             =   " gridtp_sig_cat
+  say " gridtp_sig_alg             =   " gridtp_sig_alg
+  say " gridtp_timeout             =   " gridtp_timeout
+  say " gridtp_anyappl             =   " gridtp_anyappl
+  */
+/*
+say "!!GEN05K0 entry "   grmfp_class_name  grmfp_name type file
+*/
+if type = 'delete' then                 /* if delete                */
+   do
+      cmd.1  = " rdelete " gridtp_class_name   gridtp_name
+      cmd.0 = 1
+      if file = 1 then
+      "execio * diskw idtdel1 (    stem cmd. )"
+      else
+      "execio * diskw idtdel2 (    stem cmd. ) "
+   end;
+else if type = 'define' then                 /* if delete                */
+   do
+      cmd.0 = 1
+      cmd.1  = " rdefine " gridtp_class_name   gridtp_name "IDTPARMS("
+      if substr(gridtp_sig_token_name,1,1) <> " "  then
+        cmd.1  = cmd.1 " SIGTOKEN("gridtp_sig_token_name")"
+ 
+      if substr(gridtp_sig_seq_num   ,1,1) <> " "  then
+        cmd.1  = cmd.1 " SIGSEQNUM("gridtp_sig_seq_num   ")"
+ 
+      if substr(gridtp_sig_cat       ,1,1) <> " "  then
+        cmd.1  = cmd.1 " SIGCAT("gridtp_sig_cat")"
+ 
+      cmd.1  = cmd.1 " SIGALG("gridtp_sig_alg")"
+ 
+      cmd.1  = cmd.1 " IDTTIMEOUT("gridtp_timeout")"
+ 
+      cmd.1  = cmd.1 " ANYAPPL("gridtp_anyappl")"
+ 
+      cmd.1  = cmd.1 ")"  /* close the IDTPARMS  */
+      if file = 1 then
+      "execio * diskw idtadd1 (    stem cmd.)"
+      else
+      "execio * diskw idtadd2 (    stem cmd. )"
+   end;
+else
+do
+  say "!!GEN05K0   does not support type="type
+  return " "
+end
+if rc <> 0 then
+  "!! GEN05K0 execio "type file rc
+return " "

@@ -1,0 +1,65 @@
+/* rexx */
+trace e
+parse arg type,file,datarec
+/*
+say "!!GENC05H1 entry "type file
+*/
+parse var datarec 6 grmpf_name,           /* parse the data           */
+  253 grmpf_class_name,
+  262 grmpf_pol_factor,
+  282  .
+  grmpf_class_name = strip(grmpf_class_name,"B")
+  grmpf_name = strip(grmpf_name,"B")
+  grmpf_pol_factor = strip(grmpf_pol_factor,"B")
+  /*
+  say "??genc05H1" grmpf_class_name grmpf_name grmpf_pol_factor
+  */
+  /* This is not executed .. as it gets deleted on 05H0  */
+  /* strictly we should delete the policy                */
+  /* 05H0  records are processed before 05I1 records     */
+/*
+if type = 'delete' then
+   do
+      cmd.1  = " rdeleteI1 "grmpf_class_name grmpf_name
+      say "......." cmd.1
+      cmd.0 = 1
+      if file = 1 then
+      "execio * diskw mfadel1 (    stem cmd."
+      else
+      "execio * diskw mfadel2 (    stem cmd."
+   end;
+else ,
+*/
+if type = 'delete' then
+   do
+      cmd.1 = " ralter "grmpf_class_name grmpf_name || " MFPOLICY(DELFACTOR("grmpf_pol_factor"))"
+      if file = 1 then
+      "execio * diskw mfaalt1 (    stem cmd."
+      else
+      "execio * diskw mfaalt2 (    stem cmd."
+   end
+else,
+if type = 'define' then
+   do  /* it was defined in the GENC05H0 code - we just need to add the factors */
+      /*
+      cmd.1 = " rdefine "grmpf_class_name grmpf_name
+      cmd.0 = 1
+      if file = 1 then
+      "execio * diskw mfaadd1 (    stem cmd."
+      else
+      "execio * diskw mfaadd2 (    stem cmd."
+      */
+      cmd.1 = " ralter "grmpf_class_name grmpf_name || " MFPOLICY(ADDFACTOR("grmpf_pol_factor"))"
+      if file = 1 then
+      "execio * diskw mfaalt1 (    stem cmd."
+      else
+      "execio * diskw mfaalt2 (    stem cmd."
+   end;
+else
+do
+  say "GENC05H1  does not support type="type
+  return " "
+end
+if rc <> 0 then
+  "!! GENC05H1 execio "type file rc
+return " "

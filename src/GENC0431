@@ -1,0 +1,46 @@
+/* rexx */
+trace e
+parse arg type,file,datarec
+parse var datarec 6 dscsd_name,           /* parse the data           */
+   51 dscsd_vol
+   58 dscsd_type  ,
+   63 dscsd_key   ,
+   96 dscsd_value ,
+ 1196 .
+  dscsd_name       = strip(dscsd_name          ,"B")
+  dscsd_vol        = strip(dscsd_vol           ,"B")
+  dscsd_type       = strip(dscsd_type          ,"B")
+  dscsd_key        = strip(dscsd_key           ,"B")
+  dscsd_value      = strip(dscsd_value         ,"B")
+  say "dscsd_name         "dscsd_name
+  say "dscsd_vol          "dscsd_vol
+  say "dscsd_type         "dscsd_type
+  say "dscsd_key          "dscsd_key
+  say "dscsd_value        "dscsd_value
+return " "
+if type = 'delete' then                 /* if delete                */
+   do
+      cmd.1  = " ralter "grcsfc_class_name grcsfc_name  "ICSF(DELSYMEXPORTCERT("grcsfc_label"))"
+      cmd.0 = 1
+      if file = 1 then
+      "execio * diskw icsfdel1 (   stem cmd."
+      else
+      "execio * diskw icsfdel2 (   stem cmd."
+   end;
+else if type = 'define' then                 /* if delete                */
+   do
+      cmd.1  = " ralter "grcsfc_class_name grcsfc_name  "ICSF(ADDSYMEXPORTCERT("grcsfc_label"))"
+      cmd.0 = 1
+      if file = 1 then
+      "execio * diskw icsfadd1 (   stem cmd."
+      else
+      "execio * diskw icsfadd2 (   stem cmd."
+   end;
+else
+do
+  say "GENC05G0  does not support type="type
+  return " "
+end
+if rc <> 0 then
+ say  "!! GENC05G0 execio "type file rc
+return " "

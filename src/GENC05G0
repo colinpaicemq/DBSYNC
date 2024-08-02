@@ -1,0 +1,56 @@
+/* rexx */
+trace e
+parse arg type,file,datarec
+/*
+*/
+parse var datarec 6 grcsf_name,           /* parse the data           */
+  253 grcsf_class_name,
+  262 grcsf_exportable,
+  275 grcsf_usage,
+  531 grcsf_cpacf_wrap,
+  536 grcsf_cpacf_ret,
+  539 .
+  grcsf_name       = strip(grcsf_name          ,"B")
+  grcsf_class_name = strip(grcsf_class_name    ,"B")
+  grcsf_exportable = strip(grcsf_exportable    ,"B")
+  grcsf_usage      = strip(grcsf_usage         ,"B")
+  grcsf_cpacf_wrap = strip(grcsf_cpacf_wrap    ,"B")
+  grcsf_cpacf_ret  = strip(grcsf_cpacf_ret     ,"B")
+  say "!grcsf_name        "grcsf_name
+  say "grcsf_class_name  "grcsf_class_name
+  say "grcsf_exportable  "grcsf_exportable
+  say "grcsf_usage,      "grcsf_usage,
+  say "grcsf_cpacf_wrap  "grcsf_cpacf_wrap
+  say "grcsf_cpacf_ret   "grcsf_cpacf_ret
+ 
+if type = 'delete' then                 /* if delete                */
+   do
+      cmd.1  = " ralter  "grcsf_class_name grcsf_name  "NOICSF"
+      cmd.0 = 1
+      if file = 1 then
+      "execio * diskw icsfdel1 (   stem cmd."
+      else
+      "execio * diskw icsfdel2 (   stem cmd."
+   end;
+else if type = 'define' then                 /* if delete                */
+   do
+      cmd.1 = " ralter  "grcsf_class_name grcsf_name " ICSF("
+      cmd.1 = cmd.1 "SYMEXPORTABLE("grcsf_exportable")"
+      cmd.1 = cmd.1 "ASYMUSAGE("grcsf_usage")"
+      cmd.1 = cmd.1 "SYMCPACFWRAP("grcsf_cpacf_wrap")"
+      cmd.1 = cmd.1 "SYMCPACFRETP("grcsf_cpacf_ret")"
+      cmd.1 = cmd.1 ")" /* close the ICSF */
+      cmd.0 = 1
+      if file = 1 then
+      "execio * diskw icsfadd1 (   stem cmd."
+      else
+      "execio * diskw icsfadd2 (   stem cmd."
+   end;
+else
+do
+  say "GENC05G0  does not support type="type
+  return " "
+end
+if rc <> 0 then
+ say  "!! GENC05G0 execio "type file rc
+return " "

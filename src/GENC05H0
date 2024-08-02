@@ -1,0 +1,41 @@
+/* rexx */
+trace e
+/*
+say "!!GENC05H0 entry "
+*/
+parse arg type,file,datarec
+parse var datarec 6 grmfa_name,           /* parse the data           */
+  253 grmfa_class_name,
+  262 grmfa_factor_data_len,
+  266  .
+  grmfa_class_name = strip(grmfa_class_name,"B")
+  grmfa_name = strip(grmfa_name,"B")
+  /*
+say "!!GENC05H0 entry " grmfa_factor_data_len   length(datarec)  grmfa_class_name grmfa_name
+  */
+if type = 'delete' then                 /* if delete                */
+   do
+      cmd.1  = " rdelete "grmfa_class_name grmfa_name
+      cmd.0 = 1
+      if file = 1 then
+      "execio * diskw mfadel1 (    stem cmd."
+      else
+      "execio * diskw mfadel2 (    stem cmd."
+   end;
+else if type = 'define' then                 /* if delete                */
+   do
+      cmd.1 = " rdefine "grmfa_class_name grmfa_name
+      cmd.0 = 1
+      if file = 1 then
+      "execio * diskw mfaadd1 (    stem cmd."
+      else
+      "execio * diskw mfaadd2 (    stem cmd."
+   end;
+else
+do
+  say "GENC05H0  does not support type="type
+  return " "
+end
+if rc <> 0 then
+ say  "!! GENC05H0 execio "type file rc
+return " "

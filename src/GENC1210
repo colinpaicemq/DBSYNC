@@ -1,0 +1,44 @@
+/* rexx */
+trace e
+/*
+say "!!GENC1210 entry "
+*/
+parse arg type,file,datarec
+parse var datarec 6 usmfac_name,          /* parse the data           */
+   15 usmfac_factor_name,
+   36 usmfac_tag_name,
+   57 usmfac_tag_value,
+   1081 .
+  usmfac_name      =   strip(usmfac_name    ,  "B")
+  usmfac_factor_name = strip(usmfac_factor_name,"B")
+  usmfac_tag_name  =   strip(usmfac_tag_name, "B")
+  usmfac_tag_value =   strip(usmfac_tag_value,"B")
+  /*
+say "!!GENC1210 entry " grmfa_factor_data_len   length(datarec)  grmfa_class_name grmfa_name
+  */
+if type = 'delete' then                 /* if delete                */
+   do
+      cmd.1  = " altuser "usmfac_name "MFA(DELTAGS("usmfac_tag_name"))"
+      cmd.0 = 1
+      if file = 1 then
+      "execio * diskw mfadel1 (    stem cmd."
+      else
+      "execio * diskw mfadel2 (    stem cmd."
+   end;
+else if type = 'define' then                 /* if delete                */
+   do
+      cmd.1  = " altuser "usmfac_name "MFA(AGS("usmfac_tag_name":"usmfac_tag_value"))"
+      cmd.0 = 1
+      if file = 1 then
+      "execio * diskw mfaadd1 (    stem cmd."
+      else
+      "execio * diskw mfaadd2 (    stem cmd."
+   end;
+else
+do
+  say "GENC1210  does not support type="type
+  return " "
+end
+if rc <> 0 then
+ say  "!! GENC1210 execio "type file rc
+return " "

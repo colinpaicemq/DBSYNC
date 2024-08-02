@@ -1,0 +1,44 @@
+/* rexx */
+trace e
+/*
+say "!!GENC1560 entry "
+*/
+parse arg type,file,datarec
+parse var datarec 6 certn_name,           /* parse the data           */
+  253 certn_class_name,
+  262 certn_issuer_dn,
+ 1287 certn_subject_dn,
+ 2312 certn_sig_alg,
+ 2328 .
+  certn_name       =   strip(certn_name     ,  "B")
+  certn_issuer_dn    = strip(certn_issuer_dn   ,"B")
+  certn_subject_dn =   strip(certn_subject_dn,"B")
+  certn_sig_alg    =   strip(certn_sig_alg,   "B")
+  cmd.1 = "* certn_name="certn_name
+  cmd.2 = "* certn_issuer_dn="certn_issuer_dn
+  cmd.3 = "* certn_subject_dn="certn_subject_dn
+  cmd.4 = "* certn_sig_alg ="certn_sig_alg
+  cmd.5 = "*==============="
+  cmd.0 = 5
+if type = 'delete' then                 /* if delete                */
+   do
+      if file = 1 then
+      "execio * diskw certdel1 (    stem cmd."
+      else
+      "execio * diskw certdel2 (    stem cmd."
+   end;
+else if type = 'define' then                 /* if delete                */
+   do
+      if file = 1 then
+      "execio * diskw certadd1 (    stem cmd."
+      else
+      "execio * diskw certadd2 (    stem cmd."
+   end;
+else
+do
+  say "GENC1560  does not support type="type
+  return " "
+end
+if rc <> 0 then
+ say  "!! GENC1560 execio "type file rc
+return " "
